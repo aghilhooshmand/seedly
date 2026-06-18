@@ -1,46 +1,15 @@
-import { buildTaskTree, type TaskNodeLike } from "@/lib/task-tree";
 import { db } from "@/lib/db";
-import { fieldIsComplete } from "@/lib/field-progress";
+import {
+  computeSeedProgressFromStages,
+  buildStageTreesForProgress,
+} from "@/lib/progress-calc";
 
-export type FieldWithCompleted = {
-  completed: boolean;
-  fieldType?: string;
-  value?: string | null;
-  fileName?: string | null;
-};
-
-export function fieldsProgressPercent(fields: FieldWithCompleted[]): number {
-  if (fields.length === 0) return 100;
-  const done = fields.filter((f) => fieldIsComplete(f)).length;
-  return Math.round((done / fields.length) * 100);
-}
-
-/** Task: average of sub-tasks, else % of fields marked complete. */
-export function taskProgressPercent(task: TaskNodeLike): number {
-  const children = task.subtasks ?? [];
-  if (children.length > 0) {
-    const sum = children.reduce((acc, c) => acc + taskProgressPercent(c), 0);
-    return Math.round(sum / children.length);
-  }
-  return fieldsProgressPercent(task.fieldValues);
-}
-
-/** Stage: 100% when all root tasks are 100%. */
-export function stageProgressPercent(stage: { tasks: TaskNodeLike[] }): number {
-  const roots = stage.tasks;
-  if (roots.length === 0) return 0;
-  const sum = roots.reduce((acc, t) => acc + taskProgressPercent(t), 0);
-  return Math.round(sum / roots.length);
-}
-
-export function computeSeedProgressFromStages(
-  stages: Array<{ parentId?: string | null; tasks: TaskNodeLike[] }>,
-): number {
-  const roots = stages.filter((s) => !s.parentId);
-  if (roots.length === 0) return 0;
-  const sum = roots.reduce((acc, s) => acc + stageProgressPercent(s), 0);
-  return Math.round(sum / roots.length);
-}
+export {
+  fieldsProgressPercent,
+  taskProgressPercent,
+  stageProgressPercent,
+  computeSeedProgressFromStages,
+} from "@/lib/progress-calc";
 
 export async function syncSeedProgress(seedId: string) {
   const stages = await db.stage.findMany({
@@ -52,18 +21,13 @@ export async function syncSeedProgress(seedId: string) {
           id: true,
           parentId: true,
           order: true,
-          fieldValues: { select: { completed: true, fieldType: true, value: true, fileName: true } },
+          fieldValues: { select: { completed: true } },
         },
       },
     },
   });
 
-  const withTrees = stages.map((s) => ({
-    parentId: s.parentId,
-    tasks: buildTaskTree(s.tasks),
-  }));
-
-  const progress = computeSeedProgressFromStages(withTrees);
+  const progress = computeSeedProgressFromStages(buildStageTreesForProgress(stages));
   await db.seed.update({ where: { id: seedId }, data: { progress } });
   return progress;
 }

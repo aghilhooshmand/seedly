@@ -110,7 +110,10 @@ export async function updateStageField(
   const field = await db.stageFieldValue.update({
     where: { id: fieldId },
     data: {
-      ...data,
+      ...(data.value !== undefined && { value: data.value }),
+      ...(data.fileName !== undefined && { fileName: data.fileName }),
+      ...(data.labelEn !== undefined && { labelEn: data.labelEn }),
+      ...(data.fieldType !== undefined && { fieldType: data.fieldType }),
       ...(completed !== undefined && { completed }),
     },
     include: { stage: true },

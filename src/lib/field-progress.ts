@@ -13,10 +13,6 @@ export function hasFieldContent(field: Pick<FieldLike, "fieldType" | "value" | "
   return !!(field.value?.trim());
 }
 
-export function fieldIsComplete(field: FieldLike): boolean {
-  return field.completed || hasFieldContent(field);
-}
-
 export function resolveCompletedAfterUpdate(
   existing: FieldLike,
   data: { value?: string | null; fileName?: string | null; completed?: boolean },
@@ -27,7 +23,6 @@ export function resolveCompletedAfterUpdate(
       fieldType: existing.fieldType,
       value: data.value !== undefined ? data.value : existing.value,
       fileName: data.fileName !== undefined ? data.fileName : existing.fileName,
-      completed: existing.completed,
     };
     return hasFieldContent(next);
   }

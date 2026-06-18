@@ -5,7 +5,7 @@ import { label, type Locale } from "@/lib/labels";
 import { formatDate } from "@/lib/utils";
 import { AlertTriangle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { stageProgressPercent, taskProgressPercent } from "@/lib/progress";
+import { stageProgressPercent, taskProgressPercent } from "@/lib/progress-calc";
 import { TaskFieldInputs, type TaskField } from "@/components/task-field-inputs";
 import { StageFieldInputs, type StageField } from "@/components/stage-field-inputs";
 
