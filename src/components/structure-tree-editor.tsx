@@ -474,10 +474,13 @@ function StageFieldDefSection({
           <p className="text-xs font-medium uppercase text-emerald-700/60">{t("customize.stageFields")}</p>
           {fields.map((f) => (
             <li key={f.id} className="flex items-center justify-between gap-2 text-xs text-emerald-800">
-              <span>
+              <span className="flex min-w-0 flex-wrap items-center gap-1">
                 {f.labelEn}
-                <span className="mx-1 text-emerald-500">·</span>
+                <span className="text-emerald-500">·</span>
                 <span className="text-emerald-600">{t(`fieldTypes.${f.fieldType}` as "fieldTypes.TEXT")}</span>
+                <span className="rounded bg-slate-100 px-1 py-0.5 text-[10px] text-slate-600">
+                  {t("customize.fieldInfoBadge")}
+                </span>
               </span>
               {!readOnly && mode === "seed" && (
                 <button type="button" onClick={() => removeField(f.id)} className="text-red-400 hover:text-red-600">
@@ -496,6 +499,7 @@ function StageFieldDefSection({
             </button>
           ) : (
             <form onSubmit={addField} className="space-y-2 rounded border border-emerald-100 p-2">
+              <p className="text-[11px] text-emerald-700/80">{t("customize.stageFieldHint")}</p>
               <input
                 required
                 value={labelEn ?? ""}

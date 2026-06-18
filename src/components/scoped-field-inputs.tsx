@@ -33,8 +33,8 @@ export function ScopedFieldInputs({
   compact?: boolean;
   patchUrl: (fieldId: string) => string;
   uploadUrl?: (fieldId: string) => string;
-  /** Stage fields always show a completion checkbox; task fields respect countsTowardProgress. */
-  progressCheckboxMode?: "always" | "auto";
+  /** never = stage info fields; auto = task fields (respect countsTowardProgress). */
+  progressCheckboxMode?: "never" | "auto";
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -49,7 +49,7 @@ export function ScopedFieldInputs({
   }));
 
   function tracksProgressFor(f: (typeof normalizedFields)[number]) {
-    if (progressCheckboxMode === "always") return true;
+    if (progressCheckboxMode === "never") return false;
     const raw = fields.find((x) => x.id === f.id);
     return raw?.countsTowardProgress !== false;
   }
