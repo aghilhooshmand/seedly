@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Upload } from "lucide-react";
@@ -39,7 +39,6 @@ export function ScopedFieldInputs({
   const t = useTranslations();
   const router = useRouter();
   const [pendingCompleted, setPendingCompleted] = useState<Record<string, boolean>>({});
-  const tracksProgressRef = useRef<Record<string, boolean>>({});
 
   const normalizedFields = fields.map((f) => ({
     ...f,
@@ -49,11 +48,10 @@ export function ScopedFieldInputs({
     countsTowardProgress: f.countsTowardProgress !== false,
   }));
 
-  for (const f of normalizedFields) {
-    if (!(f.id in tracksProgressRef.current)) {
-      tracksProgressRef.current[f.id] =
-        progressCheckboxMode === "always" ? true : f.countsTowardProgress;
-    }
+  function tracksProgressFor(f: (typeof normalizedFields)[number]) {
+    if (progressCheckboxMode === "always") return true;
+    const raw = fields.find((x) => x.id === f.id);
+    return raw?.countsTowardProgress !== false;
   }
 
   const serverCompletedKey = normalizedFields
@@ -116,19 +114,19 @@ export function ScopedFieldInputs({
   return (
     <dl className={compact ? "mt-2 grid gap-2 sm:grid-cols-2" : "grid gap-3 sm:grid-cols-2"}>
       {normalizedFields.map((f) => {
-        const tracksProgress = tracksProgressRef.current[f.id] ?? f.countsTowardProgress;
+        const tracksProgress = tracksProgressFor(f);
         const checked = tracksProgress && isChecked(f);
         return (
           <div
             key={f.id}
             className={cn(
               compact ? "rounded-lg p-2" : "rounded-xl border p-3",
-              tracksProgress && checked
-                ? "border-emerald-200 bg-emerald-50/60"
-                : "border-emerald-50 bg-emerald-50/30",
+              !tracksProgress && "border-slate-100 bg-slate-50/40",
+              tracksProgress && checked && "border-emerald-200 bg-emerald-50/60",
+              tracksProgress && !checked && "border-emerald-50 bg-emerald-50/30",
             )}
           >
-            <div className="flex items-start gap-2">
+            <div className={cn("flex items-start gap-2", !tracksProgress && "gap-0")}>
               {tracksProgress ? (
                 <input
                   type="checkbox"
@@ -144,13 +142,15 @@ export function ScopedFieldInputs({
                 />
               ) : null}
               <div className="min-w-0 flex-1">
-                <dt
-                  className={cn(
-                    "text-xs font-medium text-emerald-700/70",
-                    tracksProgress && checked && "line-through opacity-60",
+                <dt className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-emerald-700/70">
+                  <span className={cn(tracksProgress && checked && "line-through opacity-60")}>
+                    {label(locale, f.labelEn, f.labelFa)}
+                  </span>
+                  {!tracksProgress && (
+                    <span className="rounded bg-slate-200/80 px-1.5 py-0.5 text-[10px] font-normal text-slate-600">
+                      {t("customize.fieldInfoBadge")}
+                    </span>
                   )}
-                >
-                  {label(locale, f.labelEn, f.labelFa)}
                 </dt>
                 <dd className="mt-1">
                   {readOnly ? (
