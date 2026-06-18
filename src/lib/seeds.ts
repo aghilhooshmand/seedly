@@ -208,7 +208,12 @@ export function isReadOnly(seed: { ownerId: string }, userId: string) {
 }
 
 export async function refreshSeedProgress(seedId: string) {
-  return syncSeedProgress(seedId);
+  try {
+    return await syncSeedProgress(seedId);
+  } catch (err) {
+    console.error("[seedly] progress sync failed:", err);
+    return null;
+  }
 }
 
 export async function addCustomField(

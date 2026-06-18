@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { db, prismaSupportsTaskFieldProgressFlag } from "@/lib/db";
 import {
   computeSeedProgressFromStages,
   buildStageTreesForProgress,
@@ -12,6 +12,10 @@ export {
 } from "@/lib/progress-calc";
 
 export async function syncSeedProgress(seedId: string) {
+  const fieldSelect = prismaSupportsTaskFieldProgressFlag()
+    ? ({ completed: true, countsTowardProgress: true } as const)
+    : ({ completed: true } as const);
+
   const stages = await db.stage.findMany({
     where: { seedId },
     select: {
@@ -21,7 +25,7 @@ export async function syncSeedProgress(seedId: string) {
           id: true,
           parentId: true,
           order: true,
-          fieldValues: { select: { completed: true, countsTowardProgress: true } },
+          fieldValues: { select: fieldSelect },
         },
       },
     },

@@ -52,7 +52,8 @@ export async function updateTaskField(
   },
 ) {
   const existing = await db.taskFieldValue.findUniqueOrThrow({ where: { id: fieldId } });
-  const completed = existing.countsTowardProgress
+  const tracksProgress = existing.countsTowardProgress !== false;
+  const completed = tracksProgress
     ? resolveCompletedAfterUpdate(existing, data)
     : data.completed !== undefined
       ? data.completed

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Upload } from "lucide-react";
@@ -25,6 +25,7 @@ export function ScopedFieldInputs({
   compact,
   patchUrl,
   uploadUrl,
+  progressCheckboxMode = "auto",
 }: {
   fields: ScopedField[];
   locale: Locale;
@@ -32,10 +33,13 @@ export function ScopedFieldInputs({
   compact?: boolean;
   patchUrl: (fieldId: string) => string;
   uploadUrl?: (fieldId: string) => string;
+  /** Stage fields always show a completion checkbox; task fields respect countsTowardProgress. */
+  progressCheckboxMode?: "always" | "auto";
 }) {
   const t = useTranslations();
   const router = useRouter();
   const [pendingCompleted, setPendingCompleted] = useState<Record<string, boolean>>({});
+  const tracksProgressRef = useRef<Record<string, boolean>>({});
 
   const normalizedFields = fields.map((f) => ({
     ...f,
@@ -44,6 +48,13 @@ export function ScopedFieldInputs({
     completed: f.completed === true,
     countsTowardProgress: f.countsTowardProgress !== false,
   }));
+
+  for (const f of normalizedFields) {
+    if (!(f.id in tracksProgressRef.current)) {
+      tracksProgressRef.current[f.id] =
+        progressCheckboxMode === "always" ? true : f.countsTowardProgress;
+    }
+  }
 
   const serverCompletedKey = normalizedFields
     .map((f) => `${f.id}:${f.completed}`)
@@ -78,11 +89,6 @@ export function ScopedFieldInputs({
       body: JSON.stringify(body),
     });
     if (!res.ok) {
-      setPendingCompleted((prev) => {
-        const next = { ...prev };
-        delete next[fieldId];
-        return next;
-      });
       return;
     }
     const updated = (await res.json()) as { completed?: boolean };
@@ -110,7 +116,7 @@ export function ScopedFieldInputs({
   return (
     <dl className={compact ? "mt-2 grid gap-2 sm:grid-cols-2" : "grid gap-3 sm:grid-cols-2"}>
       {normalizedFields.map((f) => {
-        const tracksProgress = f.countsTowardProgress;
+        const tracksProgress = tracksProgressRef.current[f.id] ?? f.countsTowardProgress;
         const checked = tracksProgress && isChecked(f);
         return (
           <div

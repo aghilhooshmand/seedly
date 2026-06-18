@@ -26,6 +26,7 @@ export function StageFieldInputs({
       locale={locale}
       readOnly={readOnly}
       compact={compact}
+      progressCheckboxMode="always"
       patchUrl={(fieldId) => `/api/seeds/${seedId}/stages/${stageId}/fields/${fieldId}`}
       uploadUrl={(fieldId) => `/api/seeds/${seedId}/stages/${stageId}/fields/${fieldId}/upload`}
     />

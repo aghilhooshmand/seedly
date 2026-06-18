@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 /** Bump when Prisma schema changes so hot-reload gets a fresh client. */
-const CLIENT_VERSION = "2026-06-18-field-progress-flag";
+const CLIENT_VERSION = "2026-06-18-field-progress-flag-v2";
 
 type GlobalPrisma = {
   prisma?: PrismaClient;
@@ -47,6 +47,8 @@ function getPrismaClient(): PrismaClient {
 
   if (existing) {
     void existing.$disconnect();
+    globalForPrisma.prisma = undefined;
+    globalForPrisma.prismaVersion = undefined;
   }
 
   const client = createPrismaClient();
@@ -57,7 +59,10 @@ function getPrismaClient(): PrismaClient {
   return client;
 }
 
-/** Lazy proxy so importers never keep a stale client reference after schema changes. */
+/** Whether the loaded Prisma client knows about task field progress flags. */
+export function prismaSupportsTaskFieldProgressFlag(): boolean {
+  return modelHasField(getPrismaClient(), "TaskFieldValue", "countsTowardProgress");
+}
 export const db = new Proxy({} as PrismaClient, {
   get(_target, prop) {
     const client = getPrismaClient();
