@@ -7,7 +7,7 @@ import {
   NotificationType,
   ActivityType,
 } from "@prisma/client";
-import { syncSeedTaskFieldsFromTheme } from "../src/lib/migrate-stage-fields";
+import { syncSeedTaskFieldsFromTheme, backfillFieldCompletion } from "../src/lib/migrate-stage-fields";
 import { refreshSeedProgress } from "../src/lib/seeds";
 
 const prisma = new PrismaClient();
@@ -393,6 +393,7 @@ async function main() {
   await ensureTheme(HEALTH_THEME);
 
   await syncSeedTaskFieldsFromTheme();
+  await backfillFieldCompletion();
 
   const existing = await prisma.seed.findFirst({
     where: { title: "Senior Engineer — Acme Corp" },

@@ -1,7 +1,9 @@
 import { db } from "@/lib/db";
 import { refreshSeedProgress } from "@/lib/seeds";
 import { buildTaskTree } from "@/lib/task-tree";
+import { resolveCompletedAfterUpdate } from "@/lib/field-progress";
 import type { FieldType, Priority, StageStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export async function assertSeedOwner(seedId: string, userId: string) {
   return db.seed.findFirst({ where: { id: seedId, ownerId: userId } });
@@ -102,12 +104,19 @@ export async function updateStageField(
     completed?: boolean;
   },
 ) {
+  const existing = await db.stageFieldValue.findUniqueOrThrow({ where: { id: fieldId } });
+  const completed = resolveCompletedAfterUpdate(existing, data);
+
   const field = await db.stageFieldValue.update({
     where: { id: fieldId },
-    data,
+    data: {
+      ...data,
+      ...(completed !== undefined && { completed }),
+    },
     include: { stage: true },
   });
   await refreshSeedProgress(field.stage.seedId);
+  revalidatePath(`/seeds/${field.stage.seedId}`);
   return field;
 }
 

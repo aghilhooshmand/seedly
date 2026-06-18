@@ -1,11 +1,17 @@
 import { buildTaskTree, type TaskNodeLike } from "@/lib/task-tree";
 import { db } from "@/lib/db";
+import { fieldIsComplete } from "@/lib/field-progress";
 
-export type FieldWithCompleted = { completed: boolean };
+export type FieldWithCompleted = {
+  completed: boolean;
+  fieldType?: string;
+  value?: string | null;
+  fileName?: string | null;
+};
 
 export function fieldsProgressPercent(fields: FieldWithCompleted[]): number {
-  if (fields.length === 0) return 0;
-  const done = fields.filter((f) => f.completed).length;
+  if (fields.length === 0) return 100;
+  const done = fields.filter((f) => fieldIsComplete(f)).length;
   return Math.round((done / fields.length) * 100);
 }
 
@@ -46,7 +52,7 @@ export async function syncSeedProgress(seedId: string) {
           id: true,
           parentId: true,
           order: true,
-          fieldValues: { select: { completed: true } },
+          fieldValues: { select: { completed: true, fieldType: true, value: true, fileName: true } },
         },
       },
     },

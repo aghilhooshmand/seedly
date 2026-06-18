@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Upload } from "lucide-react";
 import { label, type Locale } from "@/lib/labels";
 import { cn } from "@/lib/utils";
+import { fieldIsComplete } from "@/lib/field-progress";
 
 export type ScopedField = {
   id: string;
@@ -33,15 +35,22 @@ export function ScopedFieldInputs({
 }) {
   const t = useTranslations();
   const router = useRouter();
+  const [localCompleted, setLocalCompleted] = useState<Record<string, boolean>>({});
 
   if (fields.length === 0) return null;
 
+  function isDone(f: ScopedField) {
+    if (f.id in localCompleted) return localCompleted[f.id];
+    return fieldIsComplete(f);
+  }
+
   async function patchField(fieldId: string, body: Record<string, unknown>) {
-    await fetch(patchUrl(fieldId), {
+    const res = await fetch(patchUrl(fieldId), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    if (!res.ok) return;
     router.refresh();
   }
 
@@ -55,28 +64,33 @@ export function ScopedFieldInputs({
 
   return (
     <dl className={compact ? "mt-2 grid gap-2 sm:grid-cols-2" : "grid gap-3 sm:grid-cols-2"}>
-      {fields.map((f) => (
+      {fields.map((f) => {
+        const done = isDone(f);
+        return (
         <div
           key={f.id}
           className={cn(
             compact ? "rounded-lg p-2" : "rounded-xl border p-3",
-            f.completed ? "border-emerald-200 bg-emerald-50/60" : "border-emerald-50 bg-emerald-50/30",
+            done ? "border-emerald-200 bg-emerald-50/60" : "border-emerald-50 bg-emerald-50/30",
           )}
         >
           <div className="flex items-start gap-2">
             <input
               type="checkbox"
-              checked={f.completed}
+              checked={done}
               disabled={readOnly}
               title={t("seed.fieldComplete")}
               className="mt-0.5 h-4 w-4 shrink-0 rounded border-emerald-300"
-              onChange={(e) => patchField(f.id, { completed: e.target.checked })}
+              onChange={(e) => {
+                setLocalCompleted((prev) => ({ ...prev, [f.id]: e.target.checked }));
+                void patchField(f.id, { completed: e.target.checked });
+              }}
             />
             <div className="min-w-0 flex-1">
               <dt
                 className={cn(
                   "text-xs font-medium text-emerald-700/70",
-                  f.completed && "line-through opacity-60",
+                  done && "line-through opacity-60",
                 )}
               >
                 {label(locale, f.labelEn, f.labelFa)}
@@ -152,7 +166,8 @@ export function ScopedFieldInputs({
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </dl>
   );
 }

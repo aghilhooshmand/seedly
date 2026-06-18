@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { refreshSeedProgress } from "@/lib/seeds";
+import { hasFieldContent } from "@/lib/field-progress";
 
 /** Move legacy stage-level fields onto the first task in each stage. */
 export async function migrateStageFieldsToTasks(seedId?: string) {
@@ -67,6 +68,39 @@ export async function migrateStageFieldsToTasks(seedId?: string) {
   }
 
   return affectedSeedIds.size;
+}
+
+/** Set completed=true on fields that already have data (one-time / seed sync). */
+export async function backfillFieldCompletion() {
+  const taskFields = await db.taskFieldValue.findMany();
+  const stageFields = await db.stageFieldValue.findMany();
+  const seedIds = new Set<string>();
+
+  for (const f of taskFields) {
+    if (!f.completed && hasFieldContent(f)) {
+      const updated = await db.taskFieldValue.update({
+        where: { id: f.id },
+        data: { completed: true },
+        include: { task: { include: { stage: true } } },
+      });
+      seedIds.add(updated.task.stage.seedId);
+    }
+  }
+
+  for (const f of stageFields) {
+    if (!f.completed && hasFieldContent(f)) {
+      const updated = await db.stageFieldValue.update({
+        where: { id: f.id },
+        data: { completed: true },
+        include: { stage: true },
+      });
+      seedIds.add(updated.stage.seedId);
+    }
+  }
+
+  for (const seedId of seedIds) {
+    await refreshSeedProgress(seedId);
+  }
 }
 
 /** Ensure planted seeds have task fields that exist on their theme template. */
