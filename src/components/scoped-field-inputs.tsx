@@ -14,7 +14,7 @@ export type ScopedField = {
   fieldType: string;
   value: string | null;
   fileName: string | null;
-  completed: boolean;
+  completed?: boolean;
 };
 
 export function ScopedFieldInputs({
@@ -38,13 +38,20 @@ export function ScopedFieldInputs({
 
   useEffect(() => {
     setPendingCompleted({});
-  }, [fields]);
+  }, [fields.map((f) => `${f.id}:${f.completed === true}`).join("|")]);
 
-  if (fields.length === 0) return null;
+  const normalizedFields = fields.map((f) => ({
+    ...f,
+    value: f.value ?? null,
+    fileName: f.fileName ?? null,
+    completed: f.completed === true,
+  }));
+
+  if (normalizedFields.length === 0) return null;
 
   function isChecked(f: ScopedField) {
-    if (f.id in pendingCompleted) return pendingCompleted[f.id];
-    return f.completed;
+    if (f.id in pendingCompleted) return pendingCompleted[f.id] === true;
+    return f.completed === true;
   }
 
   async function patchField(fieldId: string, body: Record<string, unknown>) {
@@ -74,7 +81,7 @@ export function ScopedFieldInputs({
 
   return (
     <dl className={compact ? "mt-2 grid gap-2 sm:grid-cols-2" : "grid gap-3 sm:grid-cols-2"}>
-      {fields.map((f) => {
+      {normalizedFields.map((f) => {
         const checked = isChecked(f);
         return (
           <div
