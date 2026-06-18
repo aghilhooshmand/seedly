@@ -1,5 +1,6 @@
 export type TaskFieldLike = {
-  completed: boolean;
+  completed?: boolean;
+  countsTowardProgress?: boolean;
 };
 
 export type TaskNodeLike = {

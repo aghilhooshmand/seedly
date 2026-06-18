@@ -1,11 +1,12 @@
 import { buildTaskTree, type TaskNodeLike } from "@/lib/task-tree";
 
-export type FieldWithCompleted = { completed: boolean };
+export type FieldWithCompleted = { completed?: boolean; countsTowardProgress?: boolean };
 
 export function fieldsProgressPercent(fields: FieldWithCompleted[]): number {
-  if (fields.length === 0) return 100;
-  const done = fields.filter((f) => f.completed).length;
-  return Math.round((done / fields.length) * 100);
+  const progressFields = fields.filter((f) => f.countsTowardProgress !== false);
+  if (progressFields.length === 0) return 100;
+  const done = progressFields.filter((f) => f.completed === true).length;
+  return Math.round((done / progressFields.length) * 100);
 }
 
 /** Task: average of sub-tasks, else % of fields marked complete (checkbox only). */

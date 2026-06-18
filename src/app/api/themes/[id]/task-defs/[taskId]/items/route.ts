@@ -29,6 +29,7 @@ export async function POST(request: Request, { params }: Params) {
       labelEn: body.labelEn,
       labelFa: body.labelFa,
       fieldType: (body.fieldType ?? "TEXT") as FieldType,
+      countsTowardProgress: body.countsTowardProgress,
     });
     return NextResponse.json(field, { status: 201 });
   }

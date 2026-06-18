@@ -65,6 +65,13 @@
     "taskNamePrompt": "نام کار (مثلاً آماده‌سازی سوالات فنی)",
     "fieldNamePrompt": "برچسب فیلد (مثلاً تاریخ مصاحبه)",
     "fieldValuePrompt": "مقدار (اختیاری)",
+    "fieldProgressRole": "نقش در پیشرفت",
+    "fieldCountsTowardProgress": "در پیشرفت حساب می‌شود",
+    "fieldCountsTowardProgressHint": "چک‌باکس تکمیل دارد و روی درصد کار اثر می‌گذارد",
+    "fieldInfoOnly": "فقط اطلاعات",
+    "fieldInfoOnlyHint": "فقط برای ذخیره داده — بدون چک‌باکس و بدون اثر روی پیشرفت",
+    "fieldProgressBadge": "پیشرفت",
+    "fieldInfoBadge": "اطلاعات",
     "deleteStageConfirm": "این مرحله و همه محتویاتش حذف شود؟",
     "hintDnD": "با دستگیره ⋮⋮ مراحل را مرتب کنید. کار، زیرکار و فیلد را اینجا تعریف کنید. داده‌ها را در صفحه بذر وارد کنید."
   },

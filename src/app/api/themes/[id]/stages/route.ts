@@ -50,6 +50,7 @@ export async function GET(_request: Request, { params }: Params) {
           labelEn: fd.labelEn,
           labelFa: fd.labelFa,
           fieldType: fd.fieldType,
+          countsTowardProgress: fd.countsTowardProgress,
         })),
       })),
     ),

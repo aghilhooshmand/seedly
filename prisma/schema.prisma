@@ -150,14 +150,15 @@ model ThemeTaskDef {
 
 /// Default field definitions on a theme task (copied to task when planting)
 model ThemeTaskFieldDef {
-  id        String       @id @default(cuid())
-  taskDefId String
-  taskDef   ThemeTaskDef @relation(fields: [taskDefId], references: [id], onDelete: Cascade)
-  labelEn   String
-  labelFa   String
-  fieldType FieldType    @default(TEXT)
-  options   String?
-  order     Int          @default(0)
+  id                   String       @id @default(cuid())
+  taskDefId            String
+  taskDef              ThemeTaskDef @relation(fields: [taskDefId], references: [id], onDelete: Cascade)
+  labelEn              String
+  labelFa              String
+  fieldType            FieldType    @default(TEXT)
+  options              String?
+  countsTowardProgress Boolean      @default(true)
+  order                Int          @default(0)
 }
 
 /// One seed = one specific life improvement (e.g. one job at one company)
@@ -248,16 +249,17 @@ model Task {
 
 /// Input fields on a task or sub-task (date, file, text, checkbox, …)
 model TaskFieldValue {
-  id        String    @id @default(cuid())
-  taskId    String
-  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  labelEn   String
-  labelFa   String?
-  fieldType FieldType @default(TEXT)
-  value     String?
-  fileName  String?
-  completed Boolean   @default(false)
-  order     Int       @default(0)
+  id                   String    @id @default(cuid())
+  taskId               String
+  task                 Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  labelEn              String
+  labelFa              String?
+  fieldType            FieldType @default(TEXT)
+  value                String?
+  fileName             String?
+  completed            Boolean   @default(false)
+  countsTowardProgress Boolean   @default(true)
+  order                Int       @default(0)
 }
 
 model SeedShare {

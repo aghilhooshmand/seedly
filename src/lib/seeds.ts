@@ -46,6 +46,7 @@ async function createTasksFromThemeDefs(
             labelEn: fd.labelEn,
             labelFa: fd.labelFa,
             fieldType: fd.fieldType,
+            countsTowardProgress: fd.countsTowardProgress,
             order: fd.order,
           })),
         },

@@ -326,6 +326,7 @@ export async function cloneTheme(sourceThemeId: string, userId: string, nameEn: 
               labelFa: fd.labelFa,
               fieldType: fd.fieldType,
               options: fd.options,
+              countsTowardProgress: fd.countsTowardProgress,
               order: fd.order,
             })),
           },

@@ -59,6 +59,7 @@ export default async function ThemeEditorPage({ params }: Params) {
           labelEn: f.labelEn,
           labelFa: f.labelFa,
           fieldType: f.fieldType,
+          countsTowardProgress: f.countsTowardProgress,
         })),
       })),
     ),

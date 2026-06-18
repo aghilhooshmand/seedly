@@ -46,6 +46,7 @@ type TaskField = {
   labelEn: string;
   labelFa?: string | null;
   fieldType: string;
+  countsTowardProgress?: boolean;
 };
 
 type Task = {
@@ -633,6 +634,7 @@ function TaskFieldDefSection({
 }) {
   const [labelEn, setLabelEn] = useState("");
   const [fieldType, setFieldType] = useState<(typeof FIELD_TYPES)[number]>("TEXT");
+  const [countsTowardProgress, setCountsTowardProgress] = useState(true);
   const [open, setOpen] = useState(false);
 
   async function addField(e: React.FormEvent) {
@@ -647,11 +649,12 @@ function TaskFieldDefSection({
     await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kind: "field", labelEn, fieldType }),
+      body: JSON.stringify({ kind: "field", labelEn, fieldType, countsTowardProgress }),
     });
 
     setLabelEn("");
     setFieldType("TEXT");
+    setCountsTowardProgress(true);
     setOpen(false);
     onRefresh();
   }
@@ -671,10 +674,21 @@ function TaskFieldDefSection({
         <ul className="space-y-1 rounded bg-emerald-50/50 p-2">
           {fields.map((f) => (
             <li key={f.id} className="flex items-center justify-between gap-2 text-xs text-emerald-800">
-              <span>
+              <span className="flex min-w-0 flex-wrap items-center gap-1">
                 {f.labelEn}
-                <span className="mx-1 text-emerald-500">·</span>
+                <span className="text-emerald-500">·</span>
                 <span className="text-emerald-600">{t(`fieldTypes.${f.fieldType}` as "fieldTypes.TEXT")}</span>
+                <span
+                  className={
+                    f.countsTowardProgress === false
+                      ? "rounded bg-slate-100 px-1 py-0.5 text-[10px] text-slate-600"
+                      : "rounded bg-emerald-100 px-1 py-0.5 text-[10px] text-emerald-700"
+                  }
+                >
+                  {f.countsTowardProgress === false
+                    ? t("customize.fieldInfoBadge")
+                    : t("customize.fieldProgressBadge")}
+                </span>
               </span>
               {!readOnly && (
                 <button type="button" onClick={() => removeField(f.id)} className="text-red-400 hover:text-red-600">
@@ -712,6 +726,41 @@ function TaskFieldDefSection({
                   </option>
                 ))}
               </select>
+              <fieldset className="space-y-1.5">
+                <legend className="text-[11px] font-medium text-emerald-800">
+                  {t("customize.fieldProgressRole")}
+                </legend>
+                <label className="flex cursor-pointer items-start gap-2 text-xs text-emerald-800">
+                  <input
+                    type="radio"
+                    name={`progress-role-${taskId}`}
+                    checked={countsTowardProgress}
+                    onChange={() => setCountsTowardProgress(true)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <span className="font-medium">{t("customize.fieldCountsTowardProgress")}</span>
+                    <span className="mt-0.5 block text-emerald-600/80">
+                      {t("customize.fieldCountsTowardProgressHint")}
+                    </span>
+                  </span>
+                </label>
+                <label className="flex cursor-pointer items-start gap-2 text-xs text-emerald-800">
+                  <input
+                    type="radio"
+                    name={`progress-role-${taskId}`}
+                    checked={!countsTowardProgress}
+                    onChange={() => setCountsTowardProgress(false)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <span className="font-medium">{t("customize.fieldInfoOnly")}</span>
+                    <span className="mt-0.5 block text-emerald-600/80">
+                      {t("customize.fieldInfoOnlyHint")}
+                    </span>
+                  </span>
+                </label>
+              </fieldset>
               <div className="flex gap-2">
                 <button type="submit" className="rounded bg-emerald-600 px-2 py-1 text-xs text-white">
                   {t("common.save")}

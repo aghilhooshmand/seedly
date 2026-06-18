@@ -21,7 +21,7 @@ export async function syncSeedProgress(seedId: string) {
           id: true,
           parentId: true,
           order: true,
-          fieldValues: { select: { completed: true } },
+          fieldValues: { select: { completed: true, countsTowardProgress: true } },
         },
       },
     },

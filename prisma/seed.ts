@@ -299,6 +299,7 @@ async function plantSeedFromTheme(
               labelEn: fd.labelEn,
               labelFa: fd.labelFa,
               fieldType: fd.fieldType,
+              countsTowardProgress: fd.countsTowardProgress,
               order: fd.order,
             })),
           },

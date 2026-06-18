@@ -13,7 +13,13 @@ export async function assertTaskOwner(taskId: string, userId: string) {
 
 export async function addTaskField(
   taskId: string,
-  data: { labelEn: string; labelFa?: string; fieldType: FieldType; value?: string },
+  data: {
+    labelEn: string;
+    labelFa?: string;
+    fieldType: FieldType;
+    value?: string;
+    countsTowardProgress?: boolean;
+  },
 ) {
   const max = await db.taskFieldValue.aggregate({
     where: { taskId },
@@ -26,6 +32,7 @@ export async function addTaskField(
       labelFa: data.labelFa ?? data.labelEn,
       fieldType: data.fieldType,
       value: data.value ?? null,
+      countsTowardProgress: data.countsTowardProgress ?? true,
       order: (max._max.order ?? 0) + 1,
     },
     include: { task: { include: { stage: true } } },
@@ -45,7 +52,11 @@ export async function updateTaskField(
   },
 ) {
   const existing = await db.taskFieldValue.findUniqueOrThrow({ where: { id: fieldId } });
-  const completed = resolveCompletedAfterUpdate(existing, data);
+  const completed = existing.countsTowardProgress
+    ? resolveCompletedAfterUpdate(existing, data)
+    : data.completed !== undefined
+      ? data.completed
+      : undefined;
 
   const field = await db.taskFieldValue.update({
     where: { id: fieldId },
@@ -96,7 +107,12 @@ export async function createSubtask(
 
 export async function addThemeTaskFieldDef(
   taskDefId: string,
-  data: { labelEn: string; labelFa?: string; fieldType: FieldType },
+  data: {
+    labelEn: string;
+    labelFa?: string;
+    fieldType: FieldType;
+    countsTowardProgress?: boolean;
+  },
 ) {
   const max = await db.themeTaskFieldDef.aggregate({
     where: { taskDefId },
@@ -108,6 +124,7 @@ export async function addThemeTaskFieldDef(
       labelEn: data.labelEn,
       labelFa: data.labelFa ?? data.labelEn,
       fieldType: data.fieldType,
+      countsTowardProgress: data.countsTowardProgress ?? true,
       order: (max._max.order ?? 0) + 1,
     },
   });

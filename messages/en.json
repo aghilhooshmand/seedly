@@ -65,6 +65,13 @@
     "taskNamePrompt": "Task name (e.g. Prepare technical questions)",
     "fieldNamePrompt": "Field label (e.g. Interview date)",
     "fieldValuePrompt": "Value (optional)",
+    "fieldProgressRole": "Progress tracking",
+    "fieldCountsTowardProgress": "Counts toward progress",
+    "fieldCountsTowardProgressHint": "Shows a completion checkbox and affects task %",
+    "fieldInfoOnly": "Info only",
+    "fieldInfoOnlyHint": "Data field only — no checkbox, not included in progress",
+    "fieldProgressBadge": "Progress",
+    "fieldInfoBadge": "Info",
     "deleteStageConfirm": "Delete this stage and everything inside it?",
     "hintDnD": "Drag the ⋮⋮ handle to reorder stages. Define tasks, sub-tasks, and input fields here. Enter data on the seed page."
   },

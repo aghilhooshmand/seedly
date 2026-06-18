@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 /** Bump when Prisma schema changes so hot-reload gets a fresh client. */
-const CLIENT_VERSION = "2026-06-18-field-completed";
+const CLIENT_VERSION = "2026-06-18-field-progress-flag";
 
 type GlobalPrisma = {
   prisma?: PrismaClient;
@@ -16,8 +16,23 @@ function createPrismaClient() {
   });
 }
 
+function modelHasField(client: PrismaClient, model: string, field: string): boolean {
+  const dmmf = (
+    client as unknown as {
+      _runtimeDataModel?: { models: Record<string, { fields: { name: string }[] }> };
+    }
+  )._runtimeDataModel;
+  return !!dmmf?.models[model]?.fields.some((f) => f.name === field);
+}
+
 function isFreshClient(client: PrismaClient): boolean {
-  return "user" in client && "taskFieldValue" in client;
+  return (
+    "user" in client &&
+    "taskFieldValue" in client &&
+    modelHasField(client, "StageFieldValue", "completed") &&
+    modelHasField(client, "TaskFieldValue", "completed") &&
+    modelHasField(client, "TaskFieldValue", "countsTowardProgress")
+  );
 }
 
 function getPrismaClient(): PrismaClient {

@@ -15,6 +15,7 @@ export type ScopedField = {
   value: string | null;
   fileName: string | null;
   completed?: boolean;
+  countsTowardProgress?: boolean;
 };
 
 export function ScopedFieldInputs({
@@ -36,16 +37,32 @@ export function ScopedFieldInputs({
   const router = useRouter();
   const [pendingCompleted, setPendingCompleted] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    setPendingCompleted({});
-  }, [fields.map((f) => `${f.id}:${f.completed === true}`).join("|")]);
-
   const normalizedFields = fields.map((f) => ({
     ...f,
     value: f.value ?? null,
     fileName: f.fileName ?? null,
     completed: f.completed === true,
+    countsTowardProgress: f.countsTowardProgress !== false,
   }));
+
+  const serverCompletedKey = normalizedFields
+    .map((f) => `${f.id}:${f.completed}`)
+    .join("|");
+
+  useEffect(() => {
+    setPendingCompleted((prev) => {
+      if (Object.keys(prev).length === 0) return prev;
+      let next: Record<string, boolean> | null = null;
+      for (const f of normalizedFields) {
+        if (!(f.id in prev)) continue;
+        if (prev[f.id] === f.completed) {
+          next ??= { ...prev };
+          delete next[f.id];
+        }
+      }
+      return next ?? prev;
+    });
+  }, [serverCompletedKey]);
 
   if (normalizedFields.length === 0) return null;
 
@@ -68,6 +85,11 @@ export function ScopedFieldInputs({
       });
       return;
     }
+    const updated = (await res.json()) as { completed?: boolean };
+    if (typeof updated.completed === "boolean") {
+      const completed = updated.completed;
+      setPendingCompleted((prev) => ({ ...prev, [fieldId]: completed }));
+    }
     router.refresh();
   }
 
@@ -79,36 +101,47 @@ export function ScopedFieldInputs({
     if (res.ok) router.refresh();
   }
 
+  function valuePatch(value: string, tracksProgress: boolean) {
+    const body: Record<string, unknown> = { value };
+    if (tracksProgress) body.completed = value.trim().length > 0;
+    return body;
+  }
+
   return (
     <dl className={compact ? "mt-2 grid gap-2 sm:grid-cols-2" : "grid gap-3 sm:grid-cols-2"}>
       {normalizedFields.map((f) => {
-        const checked = isChecked(f);
+        const tracksProgress = f.countsTowardProgress;
+        const checked = tracksProgress && isChecked(f);
         return (
           <div
             key={f.id}
             className={cn(
               compact ? "rounded-lg p-2" : "rounded-xl border p-3",
-              checked ? "border-emerald-200 bg-emerald-50/60" : "border-emerald-50 bg-emerald-50/30",
+              tracksProgress && checked
+                ? "border-emerald-200 bg-emerald-50/60"
+                : "border-emerald-50 bg-emerald-50/30",
             )}
           >
             <div className="flex items-start gap-2">
-              <input
-                type="checkbox"
-                checked={checked}
-                disabled={readOnly}
-                title={t("seed.fieldComplete")}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-emerald-300"
-                onChange={(e) => {
-                  const next = e.target.checked;
-                  setPendingCompleted((prev) => ({ ...prev, [f.id]: next }));
-                  void patchField(f.id, { completed: next });
-                }}
-              />
+              {tracksProgress ? (
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  disabled={readOnly}
+                  title={t("seed.fieldComplete")}
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-emerald-300"
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setPendingCompleted((prev) => ({ ...prev, [f.id]: next }));
+                    void patchField(f.id, { completed: next });
+                  }}
+                />
+              ) : null}
               <div className="min-w-0 flex-1">
                 <dt
                   className={cn(
                     "text-xs font-medium text-emerald-700/70",
-                    checked && "line-through opacity-60",
+                    tracksProgress && checked && "line-through opacity-60",
                   )}
                 >
                   {label(locale, f.labelEn, f.labelFa)}
@@ -151,10 +184,7 @@ export function ScopedFieldInputs({
                       className="w-full rounded-lg border border-emerald-200 bg-white px-2 py-1.5 text-sm"
                       onBlur={(e) => {
                         if (e.target.value !== (f.value ?? "")) {
-                          void patchField(f.id, {
-                            value: e.target.value,
-                            completed: e.target.value.trim().length > 0,
-                          });
+                          void patchField(f.id, valuePatch(e.target.value, tracksProgress));
                         }
                       }}
                     />
@@ -165,7 +195,12 @@ export function ScopedFieldInputs({
                         checked={f.value === "true"}
                         onChange={(e) => {
                           const on = e.target.checked;
-                          void patchField(f.id, { value: on ? "true" : "false", completed: on });
+                          void patchField(
+                            f.id,
+                            tracksProgress
+                              ? { value: on ? "true" : "false", completed: on }
+                              : { value: on ? "true" : "false" },
+                          );
                         }}
                       />
                       {t("seed.checkboxValue")}
@@ -185,10 +220,7 @@ export function ScopedFieldInputs({
                       className="w-full rounded-lg border border-emerald-200 bg-white px-2 py-1.5 text-sm"
                       onBlur={(e) => {
                         if (e.target.value !== (f.value ?? "")) {
-                          void patchField(f.id, {
-                            value: e.target.value,
-                            completed: e.target.value.trim().length > 0,
-                          });
+                          void patchField(f.id, valuePatch(e.target.value, tracksProgress));
                         }
                       }}
                     />
