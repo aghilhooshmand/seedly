@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum SeedStatus {
+  PLANNED
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ABANDONED
+}
+
+enum StageStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum FieldType {
+  TEXT
+  TEXTAREA
+  DATE
+  URL
+  FILE
+  SELECT
+  NUMBER
+  CHECKBOX
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum SharePermission {
+  VIEW
+}
+
+enum NotificationType {
+  TASK_DUE
+  TASK_OVERDUE
+  SEED_UPDATE
+  GENERAL
+}
+
+enum ActivityType {
+  GENERAL
+  MILESTONE
+  SETBACK
+  NOTE
+  STATUS_CHANGE
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  locale        String         @default("en")
+  ownedSeeds    Seed[]         @relation("SeedOwner")
+  ownedThemes   Theme[]        @relation("ThemeOwner")
+  sharedSeeds   SeedShare[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+}
+
+/// Reusable theme — e.g. "Job Application", "Healthy Lifestyle"
+model Theme {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  nameEn        String
+  nameFa        String
+  descriptionEn String?
+  descriptionFa String?
+  icon          String
+  color         String
+  isSystem      Boolean         @default(true)
+  ownerId       String?
+  owner         User?           @relation("ThemeOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  fieldDefs     ThemeFieldDef[]
+  stageDefs     ThemeStageDef[]
+  seeds         Seed[]
+  createdAt     DateTime        @default(now())
+}
+
+/// Default field definitions on a theme (copied to seed, then customizable per seed)
+model ThemeFieldDef {
+  id          String           @id @default(cuid())
+  themeId     String
+  theme       Theme            @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  key         String
+  labelEn     String
+  labelFa     String
+  fieldType   FieldType        @default(TEXT)
+  options     String?
+  required    Boolean          @default(false)
+  order       Int
+  fieldValues SeedFieldValue[]
+
+  @@unique([themeId, key])
+}
+
+model ThemeStageDef {
+  id            String                @id @default(cuid())
+  themeId       String
+  theme         Theme                 @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  parentId      String?
+  parent        ThemeStageDef?        @relation("ThemeStageTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children      ThemeStageDef[]       @relation("ThemeStageTree")
+  nameEn        String
+  nameFa        String
+  descriptionEn String?
+  descriptionFa String?
+  order         Int
+  taskDefs      ThemeTaskDef[]
+  fieldDefs     ThemeStageFieldDef[]
+}
+
+model ThemeStageFieldDef {
+  id         String        @id @default(cuid())
+  stageDefId String
+  stageDef   ThemeStageDef @relation(fields: [stageDefId], references: [id], onDelete: Cascade)
+  labelEn    String
+  labelFa    String
+  fieldType  FieldType     @default(TEXT)
+  options    String?
+  order      Int           @default(0)
+}
+
+model ThemeTaskDef {
+  id              String              @id @default(cuid())
+  stageDefId      String
+  stageDef        ThemeStageDef       @relation(fields: [stageDefId], references: [id], onDelete: Cascade)
+  parentId        String?
+  parent          ThemeTaskDef?       @relation("ThemeTaskTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children        ThemeTaskDef[]      @relation("ThemeTaskTree")
+  titleEn         String
+  titleFa         String
+  order           Int
+  defaultPriority Priority            @default(MEDIUM)
+  fieldDefs       ThemeTaskFieldDef[]
+}
+
+/// Default field definitions on a theme task (copied to task when planting)
+model ThemeTaskFieldDef {
+  id        String       @id @default(cuid())
+  taskDefId String
+  taskDef   ThemeTaskDef @relation(fields: [taskDefId], references: [id], onDelete: Cascade)
+  labelEn   String
+  labelFa   String
+  fieldType FieldType    @default(TEXT)
+  options   String?
+  order     Int          @default(0)
+}
+
+/// One seed = one specific life improvement (e.g. one job at one company)
+model Seed {
+  id            String           @id @default(cuid())
+  title         String
+  status        SeedStatus       @default(ACTIVE)
+  progress      Int              @default(0)
+  ownerId       String
+  owner         User             @relation("SeedOwner", fields: [ownerId], references: [id])
+  themeId       String
+  theme         Theme            @relation(fields: [themeId], references: [id])
+  fieldValues   SeedFieldValue[]
+  stages        Stage[]
+  activities    Activity[]
+  shares        SeedShare[]
+  notifications Notification[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+/// Per-seed field values — from theme and/or custom fields added only on this seed
+model SeedFieldValue {
+  id         String         @id @default(cuid())
+  seedId     String
+  seed       Seed           @relation(fields: [seedId], references: [id], onDelete: Cascade)
+  fieldDefId String?
+  fieldDef   ThemeFieldDef? @relation(fields: [fieldDefId], references: [id], onDelete: SetNull)
+  labelEn    String?
+  labelFa    String?
+  fieldType  FieldType?
+  value      String?
+  fileName   String?
+  order      Int            @default(0)
+}
+
+model Stage {
+  id            String             @id @default(cuid())
+  seedId        String
+  seed          Seed               @relation(fields: [seedId], references: [id], onDelete: Cascade)
+  parentId      String?
+  parent        Stage?             @relation("StageTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children      Stage[]            @relation("StageTree")
+  nameEn        String
+  nameFa        String
+  descriptionEn String?
+  descriptionFa String?
+  order         Int
+  status        StageStatus        @default(PENDING)
+  tasks         Task[]
+  fieldValues   StageFieldValue[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+/// Custom fields scoped to a stage or sub-stage (e.g. interview date, location)
+model StageFieldValue {
+  id        String    @id @default(cuid())
+  stageId   String
+  stage     Stage     @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  labelEn   String
+  labelFa   String?
+  fieldType FieldType @default(TEXT)
+  value     String?
+  fileName  String?
+  completed Boolean   @default(false)
+  order     Int       @default(0)
+}
+
+model Task {
+  id          String           @id @default(cuid())
+  stageId     String
+  stage       Stage            @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      Task?            @relation("TaskTree", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks    Task[]           @relation("TaskTree")
+  titleEn     String
+  titleFa     String
+  description String?
+  deadline    DateTime?
+  priority    Priority         @default(MEDIUM)
+  completed   Boolean          @default(false)
+  completedAt DateTime?
+  order       Int
+  fieldValues TaskFieldValue[]
+  createdAt   DateTime         @default(now())
+}
+
+/// Input fields on a task or sub-task (date, file, text, checkbox, …)
+model TaskFieldValue {
+  id        String    @id @default(cuid())
+  taskId    String
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  labelEn   String
+  labelFa   String?
+  fieldType FieldType @default(TEXT)
+  value     String?
+  fileName  String?
+  completed Boolean   @default(false)
+  order     Int       @default(0)
+}
+
+model SeedShare {
+  id           String          @id @default(cuid())
+  seedId       String
+  seed         Seed            @relation(fields: [seedId], references: [id], onDelete: Cascade)
+  sharedWithId String
+  sharedWith   User            @relation(fields: [sharedWithId], references: [id], onDelete: Cascade)
+  permission   SharePermission @default(VIEW)
+  createdAt    DateTime        @default(now())
+
+  @@unique([seedId, sharedWithId])
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  seedId    String
+  seed      Seed         @relation(fields: [seedId], references: [id], onDelete: Cascade)
+  titleEn   String
+  titleFa   String?
+  detail    String?
+  type      ActivityType @default(GENERAL)
+  createdAt DateTime     @default(now())
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seedId    String?
+  seed      Seed?            @relation(fields: [seedId], references: [id], onDelete: Cascade)
+  titleEn   String
+  titleFa   String?
+  messageEn String
+  messageFa String?
+  read      Boolean          @default(false)
+  type      NotificationType @default(GENERAL)
+  createdAt DateTime         @default(now())
+}

@@ -1,0 +1,128 @@
+{
+  "app": {
+    "name": "Seedly",
+    "tagline": "Plant seeds. Grow your life."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "newSeed": "Plant seed",
+    "notifications": "Notifications",
+    "themes": "Themes"
+  },
+  "dashboard": {
+    "title": "Your garden",
+    "subtitle": "Each seed is one thing you're growing — a job, a habit, a goal",
+    "activeSeeds": "Active seeds",
+    "sharedWithYou": "Shared with you",
+    "avgProgress": "Average progress",
+    "emptyTitle": "Plant your first seed",
+    "emptyBody": "One seed = one specific thing. For jobs, that's one company. Pick a theme and start growing.",
+    "plantSeed": "Plant a seed"
+  },
+  "seed": {
+    "info": "Seed info",
+    "stages": "Stages & tasks",
+    "activity": "Activity log",
+    "followUp": "Follow-up",
+    "addField": "Add custom field",
+    "addTask": "Add task",
+    "addActivity": "Log activity",
+    "share": "Share (view only)",
+    "back": "Back to garden",
+    "progress": "Progress",
+    "overdue": "Overdue",
+    "dueSoon": "Due soon",
+    "priority": "Priority",
+    "deadline": "Deadline",
+    "completed": "Completed",
+    "customField": "Custom field",
+    "fieldLabelEn": "Label (English)",
+    "fieldLabelFa": "Label (Farsi, optional)",
+    "chooseFile": "Choose file (PDF, DOC, image…)",
+    "fileHint": "Max 10 MB. PDF, Word, text, or image.",
+    "fileRequired": "Please choose a file",
+    "uploadFile": "Upload file",
+    "replaceFile": "Replace file",
+    "deleteFieldConfirm": "Delete this custom field?",
+    "checkboxValue": "Yes",
+    "fieldComplete": "Mark complete"
+  },
+  "customize": {
+    "title": "Customize stages & tasks",
+    "pageTitle": "Structure editor",
+    "backToSeed": "Back to seed",
+    "hint": "Stages can have fields and tasks. Tasks can have sub-tasks and fields. Check off each field when done — task % follows sub-tasks or fields; stage % follows tasks.",
+    "addStage": "Add stage",
+    "addSubStage": "Add sub-stage",
+    "subStage": "Sub-stage",
+    "subTask": "Sub-task",
+    "stageField": "Field",
+    "taskField": "Input field",
+    "stageFields": "Stage fields",
+    "tasks": "Tasks",
+    "empty": "No stages yet. Add your first stage or they will come from the theme when you plant a seed.",
+    "stageNamePrompt": "Stage name (e.g. Interview)",
+    "taskNamePrompt": "Task name (e.g. Prepare technical questions)",
+    "fieldNamePrompt": "Field label (e.g. Interview date)",
+    "fieldValuePrompt": "Value (optional)",
+    "deleteStageConfirm": "Delete this stage and everything inside it?",
+    "hintDnD": "Drag the ⋮⋮ handle to reorder stages. Define tasks, sub-tasks, and input fields here. Enter data on the seed page."
+  },
+  "themes": {
+    "title": "Themes",
+    "subtitle": "Templates for planting seeds — customize stages, tasks, and fields before you start",
+    "manage": "Manage themes",
+    "system": "Built-in",
+    "systemHint": "System themes are read-only. Use “Duplicate to edit” to create your own copy.",
+    "systemReadOnly": "Built-in template (read-only)",
+    "editSubtitle": "Edit stages, tasks, sub-tasks, and input fields on tasks",
+    "edit": "Edit template",
+    "duplicateToEdit": "Duplicate to edit",
+    "cloneNamePrompt": "Name for your copy",
+    "plantSeed": "Plant seed",
+    "fields": "info fields",
+    "seedsPlanted": "seeds planted",
+    "back": "All themes",
+    "saveAsTheme": "Save as new theme",
+    "saveAsNamePrompt": "Theme name (e.g. My job search flow)"
+  },
+  "newSeed": {
+    "title": "Plant a new seed",
+    "subtitle": "Choose a theme, then customize fields and tasks for this specific seed",
+    "theme": "Theme",
+    "seedTitle": "Seed title",
+    "seedTitlePlaceholder": "e.g. Senior Engineer at Acme Corp",
+    "create": "Plant seed",
+    "cancel": "Cancel"
+  },
+  "priority": {
+    "LOW": "Low",
+    "MEDIUM": "Medium",
+    "HIGH": "High",
+    "URGENT": "Urgent"
+  },
+  "status": {
+    "PLANNED": "Planned",
+    "ACTIVE": "Active",
+    "PAUSED": "Paused",
+    "COMPLETED": "Completed",
+    "ABANDONED": "Abandoned"
+  },
+  "fieldTypes": {
+    "TEXT": "Text",
+    "TEXTAREA": "Long text",
+    "DATE": "Date",
+    "URL": "Link",
+    "FILE": "File",
+    "SELECT": "Dropdown",
+    "NUMBER": "Number",
+    "CHECKBOX": "Yes/No"
+  },
+  "common": {
+    "save": "Save",
+    "delete": "Delete",
+    "loading": "Loading…",
+    "user": "User",
+    "language": "Language"
+  }
+}

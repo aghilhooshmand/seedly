@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: seedly
+      POSTGRES_PASSWORD: seedly
+      POSTGRES_DB: seedly
+    ports:
+      - "5432:5432"
+    volumes:
+      - seedly_pg:/var/lib/postgresql/data
+
+volumes:
+  seedly_pg:

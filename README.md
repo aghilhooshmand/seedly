@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Seedly
 
-## Getting Started
+**Grow your goals to completion.** Seedly tracks the full lifecycle of meaningful goals — from a job search to learning, health, or anything else in life — with stages, milestones, activities, and notes.
 
-First, run the development server:
+## Quick start
 
 ```bash
+# Install dependencies
+npm install
+
+# Create database and seed sample job-search goal
+cp .env.example .env
+npm run db:migrate
+npm run db:seed
+
+# Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## What you get (v0.1)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Dashboard** — active goals with progress and current stage
+- **Goal detail** — lifecycle timeline, activity log, notes
+- **Templates** — job search (5 stages) or generic 3-stage goal
+- **REST API** — `/api/goals`, activities, notes
+- **Documentation** — product vision, architecture, roadmap, SDLC in `docs/`
 
-## Learn More
+## Tech stack
 
-To learn more about Next.js, take a look at the following resources:
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 16, React 19, Tailwind CSS 4 |
+| Backend | Next.js Route Handlers |
+| Database | SQLite (dev) / PostgreSQL (prod) via Prisma |
+| Language | TypeScript |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project docs
 
-## Deploy on Vercel
+| Document | Description |
+|----------|-------------|
+| [docs/PRODUCT_VISION.md](docs/PRODUCT_VISION.md) | Why Seedly exists and MVP scope |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Stack, data model, API conventions |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Planned phases |
+| [docs/SDLC/](docs/SDLC/) | Changelog, ADRs, release process |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## PostgreSQL (optional)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For production-like local dev:
+
+```bash
+docker compose up -d
+# Set DATABASE_URL in .env to postgresql://seedly:seedly@localhost:5432/seedly
+# Change provider in prisma/schema.prisma to "postgresql"
+npm run db:migrate
+```
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run db:migrate` | Run Prisma migrations |
+| `npm run db:seed` | Seed life areas + sample goal |
+| `npm run db:studio` | Open Prisma Studio |
+
+## License
+
+Private — personal project.
