@@ -85,7 +85,12 @@
     "seedsPlanted": "seeds planted",
     "back": "All themes",
     "saveAsTheme": "Save as new theme",
-    "saveAsNamePrompt": "Theme name (e.g. My job search flow)"
+    "saveAsNamePrompt": "Theme name (e.g. My job search flow)",
+    "create": "Create theme",
+    "createNamePrompt": "Theme name (e.g. My fitness plan)",
+    "startBlank": "Blank — build from scratch",
+    "yours": "Your themes",
+    "builtIn": "Built-in templates"
   },
   "newSeed": {
     "title": "Plant a new seed",

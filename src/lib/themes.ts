@@ -269,6 +269,30 @@ export function buildThemeStageTree(stageDefs: ThemeStageDefNode[]) {
   return stageDefs.filter((s) => !s.parentId).sort((a, b) => a.order - b.order);
 }
 
+export async function createTheme(
+  userId: string,
+  data: { nameEn: string; nameFa?: string; color?: string; descriptionEn?: string },
+) {
+  let slug = slugify(data.nameEn);
+  if (await db.theme.findUnique({ where: { slug } })) {
+    slug = `${slug}-${Date.now().toString(36)}`;
+  }
+
+  return db.theme.create({
+    data: {
+      slug,
+      nameEn: data.nameEn.trim(),
+      nameFa: data.nameFa?.trim() || data.nameEn.trim(),
+      descriptionEn: data.descriptionEn?.trim() || null,
+      descriptionFa: data.descriptionEn?.trim() || null,
+      icon: "sprout",
+      color: data.color ?? "#2d6a4f",
+      isSystem: false,
+      ownerId: userId,
+    },
+  });
+}
+
 export async function cloneTheme(sourceThemeId: string, userId: string, nameEn: string) {
   const source = await getThemeDetail(sourceThemeId, userId);
   if (!source) return null;
