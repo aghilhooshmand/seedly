@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Sprout } from "lucide-react";
+import type { SeedStatus } from "@prisma/client";
 import { getCurrentUserId, getAllUsers } from "@/lib/user";
-import { getSeedsForUser } from "@/lib/seeds";
+import { getUniverseDashboard } from "@/lib/universe";
 import { AppShell } from "@/components/app-shell";
-import { SeedCard } from "@/components/seed-card";
-import { label, type Locale } from "@/lib/labels";
+import { GardenPlot, SharedGardenSection } from "@/components/garden-plot";
+import { StatusLegend } from "@/components/status-legend";
+import { type Locale } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -14,12 +16,31 @@ export default async function DashboardPage() {
   const locale = (await getLocale()) as Locale;
   const userId = await getCurrentUserId();
   const users = await getAllUsers();
-  const { owned, shared } = await getSeedsForUser(userId);
+  const { ownedGardens, sharedGardens, totalSeeds, growing, completed } =
+    await getUniverseDashboard(userId);
 
-  const avgProgress =
-    owned.length > 0
-      ? Math.round(owned.reduce((sum, s) => sum + s.progress, 0) / owned.length)
-      : 0;
+  const statusLabels = {
+    PLANNED: t("dashboard.status.PLANNED"),
+    ACTIVE: t("dashboard.status.ACTIVE"),
+    PAUSED: t("dashboard.status.PAUSED"),
+    COMPLETED: t("dashboard.status.COMPLETED"),
+    ABANDONED: t("dashboard.status.ABANDONED"),
+  } satisfies Record<SeedStatus, string>;
+
+  const plantLabel = t("dashboard.plantInGarden");
+  const emptyLabel = t("dashboard.gardenEmpty");
+  const showUniverseEmpty = ownedGardens.length === 0 && sharedGardens.length === 0;
+  const hasSeeds =
+    ownedGardens.some((g) => g.seeds.length > 0) || sharedGardens.some((g) => g.seeds.length > 0);
+
+  function gardenSummary(seeds: { status: SeedStatus }[]) {
+    const parts = [`${seeds.length} ${t("dashboard.totalSeeds")}`];
+    const growing = seeds.filter((s) => s.status === "ACTIVE").length;
+    const done = seeds.filter((s) => s.status === "COMPLETED").length;
+    if (growing > 0) parts.push(`${growing} ${t("dashboard.growingNow")}`);
+    if (done > 0) parts.push(`${done} ${t("dashboard.harvested")}`);
+    return parts.join(" · ");
+  }
 
   return (
     <AppShell
@@ -28,75 +49,103 @@ export default async function DashboardPage() {
       users={users}
       currentUserId={userId}
     >
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <StatCard label={t("dashboard.activeSeeds")} value={String(owned.length)} />
-        <StatCard label={t("dashboard.sharedWithYou")} value={String(shared.length)} />
-        <StatCard label={t("dashboard.avgProgress")} value={`${avgProgress}%`} />
-      </div>
+      {hasSeeds && (
+        <div className="mb-6 space-y-4">
+          <StatusLegend labels={statusLabels} legendLabel={t("dashboard.legend")} />
+          {totalSeeds > 0 && (
+            <div className="flex flex-wrap gap-2 text-xs">
+              <SummaryChip label={t("dashboard.totalSeeds")} value={String(totalSeeds)} />
+              {growing > 0 && (
+                <SummaryChip label={t("dashboard.growingNow")} value={String(growing)} accent="emerald" />
+              )}
+              {completed > 0 && (
+                <SummaryChip label={t("dashboard.harvested")} value={String(completed)} accent="green" />
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
-      {owned.length === 0 && shared.length === 0 ? (
+      {showUniverseEmpty ? (
         <EmptyState
           title={t("dashboard.emptyTitle")}
           body={t("dashboard.emptyBody")}
           cta={t("dashboard.plantSeed")}
         />
       ) : (
-        <div className="space-y-10">
-          {owned.length > 0 && (
-            <section>
-              <h2 className="mb-4 text-lg font-semibold text-emerald-950">{t("dashboard.activeSeeds")}</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {owned.map((seed) => {
-                  const current = seed.stages.find((s) => s.status === "IN_PROGRESS");
-                  return (
-                    <SeedCard
-                      key={seed.id}
-                      id={seed.id}
-                      title={seed.title}
-                      progress={seed.progress}
-                      status={seed.status}
-                      theme={seed.theme}
-                      currentStage={current ? label(locale, current.nameEn, current.nameFa) : null}
-                      locale={locale}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {shared.length > 0 && (
-            <section>
-              <h2 className="mb-4 text-lg font-semibold text-emerald-950">{t("dashboard.sharedWithYou")}</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {shared.map((seed) => (
-                  <SeedCard
-                    key={seed.id}
-                    id={seed.id}
-                    title={seed.title}
-                    progress={seed.progress}
-                    status={seed.status}
-                    theme={seed.theme}
-                    shared
-                    ownerName={seed.owner.name}
+        <div className="space-y-8">
+          <section className="space-y-5">
+            <h2 className="text-lg font-semibold text-emerald-950">{t("dashboard.yourGardens")}</h2>
+            {ownedGardens.length === 0 ? (
+              <p className="text-sm text-emerald-800/60">{t("dashboard.noGardensYet")}</p>
+            ) : (
+              <div className="grid gap-6 lg:grid-cols-2">
+                {ownedGardens.map((garden) => (
+                  <GardenPlot
+                    key={garden.id}
                     locale={locale}
+                    garden={{
+                      ...garden,
+                      plantLabel,
+                      emptyLabel,
+                      summary: garden.seeds.length > 0 ? gardenSummary(garden.seeds) : undefined,
+                      seeds: garden.seeds.map((seed) => ({
+                        id: seed.id,
+                        title: seed.title,
+                        progress: seed.progress,
+                        status: seed.status,
+                        statusLabel: statusLabels[seed.status],
+                      })),
+                    }}
                   />
                 ))}
               </div>
-            </section>
-          )}
+            )}
+          </section>
+
+          <SharedGardenSection
+            title={t("dashboard.sharedWithYou")}
+            locale={locale}
+            gardens={sharedGardens.map((garden) => ({
+              ...garden,
+              plantLabel,
+              emptyLabel,
+              summary: garden.seeds.length > 0 ? gardenSummary(garden.seeds) : undefined,
+              ownerName: garden.ownerName,
+              seeds: garden.seeds.map((seed) => ({
+                id: seed.id,
+                title: seed.title,
+                progress: seed.progress,
+                status: seed.status,
+                statusLabel: statusLabels[seed.status],
+              })),
+            }))}
+          />
         </div>
       )}
     </AppShell>
   );
 }
 
-function StatCard({ label: lbl, value }: { label: string; value: string }) {
+function SummaryChip({
+  label,
+  value,
+  accent = "neutral",
+}: {
+  label: string;
+  value: string;
+  accent?: "neutral" | "emerald" | "green";
+}) {
+  const colors = {
+    neutral: "border-emerald-100 bg-white text-emerald-900",
+    emerald: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    green: "border-green-200 bg-green-50 text-green-800",
+  };
   return (
-    <div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
-      <p className="text-2xl font-semibold text-emerald-950">{value}</p>
-      <p className="text-sm text-emerald-800/60">{lbl}</p>
-    </div>
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 ${colors[accent]}`}>
+      <span className="font-semibold">{value}</span>
+      <span className="opacity-70">{label}</span>
+    </span>
   );
 }
 

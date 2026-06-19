@@ -12,12 +12,25 @@
   "dashboard": {
     "title": "Your universe",
     "subtitle": "Gardens are areas of your life — career, health, learning. Each seed is one thing you're growing inside them.",
-    "activeSeeds": "Active seeds",
+    "yourGardens": "Your gardens",
     "sharedWithYou": "Shared with you",
-    "avgProgress": "Average progress",
+    "legend": "Seed colors",
+    "totalSeeds": "seeds",
+    "growingNow": "growing",
+    "harvested": "completed",
+    "plantInGarden": "Plant seed",
+    "gardenEmpty": "Empty bed — ready for a new seed",
+    "noGardensYet": "Create a garden first, then plant seeds inside it.",
     "emptyTitle": "Plant your first seed",
     "emptyBody": "One seed = one specific thing. For jobs, that's one company. Pick a garden and start growing.",
-    "plantSeed": "Plant a seed"
+    "plantSeed": "Plant a seed",
+    "status": {
+      "PLANNED": "Planted",
+      "ACTIVE": "Growing",
+      "PAUSED": "Paused",
+      "COMPLETED": "Harvested",
+      "ABANDONED": "Wilted"
+    }
   },
   "seed": {
     "info": "Seed info",
