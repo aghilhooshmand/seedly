@@ -45,12 +45,6 @@ function isDueSoon(deadline: Date | string | null, progress: number) {
   return diff > 0 && diff < 3 * 86400000;
 }
 
-const priorityColors: Record<string, string> = {
-  LOW: "bg-slate-100 text-slate-600",
-  MEDIUM: "bg-emerald-100 text-emerald-700",
-  HIGH: "bg-amber-100 text-amber-700",
-  URGENT: "bg-red-100 text-red-700",
-};
 
 function flattenTasks(tasks: Task[]): Task[] {
   return tasks.flatMap((t) => [t, ...(t.subtasks ? flattenTasks(t.subtasks) : [])]);
@@ -103,9 +97,7 @@ export function StageTaskTimeline({
               {label(locale, stage.nameEn, stage.nameFa)}
             </h3>
             {depth > 0 && (
-              <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] text-emerald-600">
-                {t("customize.subStage")}
-              </span>
+              <span className="text-[10px] text-emerald-600/70">{t("customize.subStage")}</span>
             )}
           </div>
           {(stage.descriptionEn || stage.descriptionFa) && (
@@ -121,7 +113,6 @@ export function StageTaskTimeline({
               fields={stage.fieldValues}
               locale={locale}
               readOnly={readOnly}
-              compact
             />
           )}
 
@@ -168,47 +159,36 @@ function TaskRow({
   return (
     <li
       className={cn(
-        "rounded-xl border p-3",
-        depth > 0 && "ms-4 border-emerald-100 bg-emerald-50/20",
-        overdue ? "border-red-200 bg-red-50/50" : "border-emerald-50 bg-white",
+        "rounded-lg border border-emerald-100/80 p-3",
+        depth > 0 && "ms-3",
+        overdue && "border-red-200 bg-red-50/30",
       )}
     >
       <div className="flex items-start gap-3">
-        <div
-          className={cn(
-            "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-            progress >= 100 ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-700",
-          )}
-          title={t("seed.progress")}
-        >
-          {progress}%
-        </div>
+        {progress < 100 && (
+          <span className="mt-0.5 shrink-0 text-xs tabular-nums text-emerald-600">{progress}%</span>
+        )}
+        {progress >= 100 && (
+          <span className="mt-0.5 shrink-0 text-xs text-emerald-600" title={t("seed.completed")}>
+            ✓
+          </span>
+        )}
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-emerald-950">
             {label(locale, task.titleEn, task.titleFa)}
           </p>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span
+          {(overdue || dueSoon) && task.deadline && (
+            <p
               className={cn(
-                "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase",
-                priorityColors[task.priority],
+                "mt-0.5 inline-flex items-center gap-1 text-xs",
+                overdue ? "text-red-600" : "text-amber-600",
               )}
             >
-              {t(`priority.${task.priority}` as "priority.LOW")}
-            </span>
-            {task.deadline && (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-700/60">
-                {overdue ? (
-                  <AlertTriangle className="h-3 w-3 text-red-500" />
-                ) : dueSoon ? (
-                  <Clock className="h-3 w-3 text-amber-500" />
-                ) : null}
-                {formatDate(task.deadline)}
-                {overdue && <span className="font-medium text-red-600">{t("seed.overdue")}</span>}
-                {dueSoon && !overdue && <span className="text-amber-600">{t("seed.dueSoon")}</span>}
-              </span>
-            )}
-          </div>
+              {overdue ? <AlertTriangle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+              {formatDate(task.deadline)}
+              {overdue ? ` · ${t("seed.overdue")}` : ` · ${t("seed.dueSoon")}`}
+            </p>
+          )}
 
           {!hasSubtasks && (
             <TaskFieldInputs
@@ -216,7 +196,6 @@ function TaskRow({
               fields={task.fieldValues}
               locale={locale}
               readOnly={readOnly}
-              compact
             />
           )}
 
@@ -246,11 +225,15 @@ export function FollowUpSummary({
   const dueSoon = allTasks.filter((tk) => isDueSoon(tk.deadline, taskProgressPercent(tk)));
   const pending = allTasks.filter((tk) => taskProgressPercent(tk) < 100);
 
+  if (overdue.length === 0 && dueSoon.length === 0 && pending.length === 0) return null;
+
   return (
     <div className="grid gap-3 sm:grid-cols-3">
-      <SummaryBox label={t("seed.overdue")} count={overdue.length} tone="red" />
-      <SummaryBox label={t("seed.dueSoon")} count={dueSoon.length} tone="amber" />
-      <SummaryBox label={locale === "fa" ? "باقی‌مانده" : "Remaining"} count={pending.length} tone="emerald" />
+      {overdue.length > 0 && <SummaryBox label={t("seed.overdue")} count={overdue.length} tone="red" />}
+      {dueSoon.length > 0 && <SummaryBox label={t("seed.dueSoon")} count={dueSoon.length} tone="amber" />}
+      {pending.length > 0 && (
+        <SummaryBox label={locale === "fa" ? "باقی‌مانده" : "Remaining"} count={pending.length} tone="emerald" />
+      )}
     </div>
   );
 }

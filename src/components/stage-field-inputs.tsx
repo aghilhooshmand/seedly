@@ -11,21 +11,18 @@ export function StageFieldInputs({
   fields,
   locale,
   readOnly,
-  compact,
 }: {
   seedId: string;
   stageId: string;
   fields: StageField[];
   locale: Locale;
   readOnly?: boolean;
-  compact?: boolean;
 }) {
   return (
     <ScopedFieldInputs
       fields={fields}
       locale={locale}
       readOnly={readOnly}
-      compact={compact}
       progressCheckboxMode="never"
       patchUrl={(fieldId) => `/api/seeds/${seedId}/stages/${stageId}/fields/${fieldId}`}
       uploadUrl={(fieldId) => `/api/seeds/${seedId}/stages/${stageId}/fields/${fieldId}/upload`}

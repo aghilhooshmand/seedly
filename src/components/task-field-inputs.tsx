@@ -10,20 +10,17 @@ export function TaskFieldInputs({
   fields,
   locale,
   readOnly,
-  compact,
 }: {
   taskId: string;
   fields: TaskField[];
   locale: Locale;
   readOnly?: boolean;
-  compact?: boolean;
 }) {
   return (
     <ScopedFieldInputs
       fields={fields}
       locale={locale}
       readOnly={readOnly}
-      compact={compact}
       progressCheckboxMode="auto"
       patchUrl={(fieldId) => `/api/tasks/${taskId}/fields/${fieldId}`}
       uploadUrl={(fieldId) => `/api/tasks/${taskId}/fields/${fieldId}/upload`}
