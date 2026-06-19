@@ -394,3 +394,14 @@ export async function cloneTheme(sourceThemeId: string, userId: string, nameEn: 
   await copyStageTree(null, null);
   return theme;
 }
+
+export async function deleteTheme(themeId: string, userId: string) {
+  const theme = await db.theme.findFirst({
+    where: { id: themeId, isSystem: false, ownerId: userId },
+    include: { _count: { select: { seeds: true } } },
+  });
+  if (!theme) return { error: "forbidden" as const };
+  if (theme._count.seeds > 0) return { error: "has_seeds" as const };
+  await db.theme.delete({ where: { id: themeId } });
+  return { ok: true as const };
+}

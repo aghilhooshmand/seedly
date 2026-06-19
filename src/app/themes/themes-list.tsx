@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Copy, Pencil, Plus, Sprout } from "lucide-react";
+import { DeleteThemeButton } from "@/components/delete-theme-button";
 
 type Theme = {
   id: string;
@@ -195,6 +196,7 @@ function ThemeCard({
           <Sprout className="h-4 w-4" />
           {t("themes.plantSeed")}
         </Link>
+        {editable && <DeleteThemeButton themeId={th.id} seedCount={th.seedCount} />}
       </div>
     </div>
   );

@@ -1,22 +1,22 @@
 {
   "app": {
     "name": "Seedly",
-    "tagline": "Plant seeds. Grow your life."
+    "tagline": "Plant seeds in your gardens. Grow your universe."
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Universe",
     "newSeed": "Plant seed",
     "notifications": "Notifications",
-    "themes": "Themes"
+    "themes": "Gardens"
   },
   "dashboard": {
-    "title": "Your garden",
-    "subtitle": "Each seed is one thing you're growing — a job, a habit, a goal",
+    "title": "Your universe",
+    "subtitle": "Gardens are areas of your life — career, health, learning. Each seed is one thing you're growing inside them.",
     "activeSeeds": "Active seeds",
     "sharedWithYou": "Shared with you",
     "avgProgress": "Average progress",
     "emptyTitle": "Plant your first seed",
-    "emptyBody": "One seed = one specific thing. For jobs, that's one company. Pick a theme and start growing.",
+    "emptyBody": "One seed = one specific thing. For jobs, that's one company. Pick a garden and start growing.",
     "plantSeed": "Plant a seed"
   },
   "seed": {
@@ -28,7 +28,7 @@
     "addTask": "Add task",
     "addActivity": "Log activity",
     "share": "Share (view only)",
-    "back": "Back to garden",
+    "back": "Back to universe",
     "progress": "Progress",
     "overdue": "Overdue",
     "dueSoon": "Due soon",
@@ -60,7 +60,7 @@
     "taskField": "Task field",
     "stageFields": "Stage info fields",
     "tasks": "Tasks",
-    "empty": "No stages yet. Add your first stage or they will come from the theme when you plant a seed.",
+    "empty": "No stages yet. Add your first stage or they will come from the garden when you plant a seed.",
     "stageNamePrompt": "Stage name (e.g. Interview)",
     "taskNamePrompt": "Task name (e.g. Prepare technical questions)",
     "fieldNamePrompt": "Field label (e.g. Interview date)",
@@ -70,32 +70,35 @@
     "hintDnD": "Drag ⋮⋮ to reorder stages."
   },
   "themes": {
-    "title": "Themes",
-    "subtitle": "Templates for planting seeds — customize stages, tasks, and fields before you start",
-    "manage": "Manage themes",
+    "title": "Gardens",
+    "subtitle": "Areas of your life — career, health, study. Customize stages, tasks, and fields before planting seeds.",
+    "manage": "Manage gardens",
     "system": "Built-in",
-    "systemHint": "System themes are read-only. Use “Duplicate to edit” to create your own copy.",
-    "systemReadOnly": "Built-in template (read-only)",
+    "systemHint": "Built-in gardens are read-only. Use “Duplicate to edit” to create your own copy.",
+    "systemReadOnly": "Built-in garden (read-only)",
     "editSubtitle": "Edit stages, tasks, sub-tasks, and input fields on tasks",
-    "edit": "Edit template",
+    "edit": "Edit garden",
     "duplicateToEdit": "Duplicate to edit",
-    "cloneNamePrompt": "Name for your copy",
+    "cloneNamePrompt": "Name for your garden copy",
     "plantSeed": "Plant seed",
     "fields": "info fields",
     "seedsPlanted": "seeds planted",
-    "back": "All themes",
-    "saveAsTheme": "Save as new theme",
-    "saveAsNamePrompt": "Theme name (e.g. My job search flow)",
-    "create": "Create theme",
-    "createNamePrompt": "Theme name (e.g. My fitness plan)",
+    "back": "All gardens",
+    "saveAsTheme": "Save as new garden",
+    "saveAsNamePrompt": "Garden name (e.g. My job search flow)",
+    "create": "Create garden",
+    "createNamePrompt": "Garden name (e.g. Career, Health, Study)",
     "startBlank": "Blank — build from scratch",
-    "yours": "Your themes",
-    "builtIn": "Built-in templates"
+    "yours": "Your gardens",
+    "builtIn": "Built-in gardens",
+    "delete": "Delete garden",
+    "deleteConfirm": "Delete this garden? This cannot be undone.",
+    "deleteBlocked": "Cannot delete — this garden has seeds planted in it."
   },
   "newSeed": {
     "title": "Plant a new seed",
-    "subtitle": "Choose a theme, then customize fields and tasks for this specific seed",
-    "theme": "Theme",
+    "subtitle": "Choose a garden, then customize fields and tasks for this specific seed",
+    "theme": "Garden",
     "seedTitle": "Seed title",
     "seedTitlePlaceholder": "e.g. Senior Engineer at Acme Corp",
     "create": "Plant seed",

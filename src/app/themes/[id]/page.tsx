@@ -7,6 +7,7 @@ import { buildTaskTree } from "@/lib/task-tree";
 import { db } from "@/lib/db";
 import { AppShell } from "@/components/app-shell";
 import { StructureTreeEditor } from "@/components/structure-tree-editor";
+import { DeleteThemeButton } from "@/components/delete-theme-button";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function ThemeEditorPage({ params }: Params) {
   if (!theme) notFound();
 
   const readOnly = theme.isSystem;
+  const seedCount = await db.seed.count({ where: { themeId: id } });
 
   const stageDefs = await db.themeStageDef.findMany({
     where: { themeId: id },
@@ -72,9 +74,12 @@ export default async function ThemeEditorPage({ params }: Params) {
       users={users}
       currentUserId={userId}
     >
-      <Link href="/themes" className="mb-6 inline-block text-sm text-emerald-700 hover:underline">
-        ← {t("themes.back")}
-      </Link>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <Link href="/themes" className="text-sm text-emerald-700 hover:underline">
+          ← {t("themes.back")}
+        </Link>
+        {!readOnly && <DeleteThemeButton themeId={id} seedCount={seedCount} />}
+      </div>
 
       {readOnly ? (
         <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">{t("themes.systemHint")}</p>
