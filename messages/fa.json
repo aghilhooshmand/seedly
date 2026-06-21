@@ -146,5 +146,11 @@
     "loading": "در حال بارگذاری…",
     "user": "کاربر",
     "language": "زبان"
+  },
+  "recurrence": {
+    "DAILY": "هر روز",
+    "WEEKLY": "هر هفته",
+    "MONTHLY": "هر ماه",
+    "NONE": "یک‌بار"
   }
 }

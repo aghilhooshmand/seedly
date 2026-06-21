@@ -2,6 +2,7 @@ import { Prisma, FieldType, Priority, StageStatus, SeedStatus } from "@prisma/cl
 import { db } from "@/lib/db";
 import { syncSeedProgress } from "@/lib/progress";
 import { buildTaskTree } from "@/lib/task-tree";
+import { resetExpiredRecurringTasks } from "@/lib/recurring-tasks";
 
 export async function getThemeWithDefs(themeId: string) {
   return db.theme.findUniqueOrThrow({
@@ -41,6 +42,7 @@ async function createTasksFromThemeDefs(
         titleFa: td.titleFa,
         order: td.order,
         priority: td.defaultPriority,
+        recurrence: td.recurrence,
         fieldValues: {
           create: td.fieldDefs.map((fd) => ({
             labelEn: fd.labelEn,
@@ -193,6 +195,8 @@ export async function getSeedDetail(seedId: string, userId: string) {
     },
   });
   if (!seed) return null;
+
+  await resetExpiredRecurringTasks(seedId);
 
   return {
     ...seed,

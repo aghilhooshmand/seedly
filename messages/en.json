@@ -146,5 +146,11 @@
     "loading": "Loading…",
     "user": "User",
     "language": "Language"
+  },
+  "recurrence": {
+    "DAILY": "Every day",
+    "WEEKLY": "Every week",
+    "MONTHLY": "Every month",
+    "NONE": "Once"
   }
 }

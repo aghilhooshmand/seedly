@@ -40,6 +40,13 @@ enum Priority {
   URGENT
 }
 
+enum Recurrence {
+  NONE
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
 enum SharePermission {
   VIEW
 }
@@ -145,6 +152,7 @@ model ThemeTaskDef {
   titleFa         String
   order           Int
   defaultPriority Priority            @default(MEDIUM)
+  recurrence      Recurrence          @default(NONE)
   fieldDefs       ThemeTaskFieldDef[]
 }
 
@@ -239,8 +247,10 @@ model Task {
   titleFa     String
   description String?
   deadline    DateTime?
-  priority    Priority         @default(MEDIUM)
-  completed   Boolean          @default(false)
+  priority           Priority         @default(MEDIUM)
+  recurrence         Recurrence       @default(NONE)
+  periodCompletedKey String?
+  completed          Boolean          @default(false)
   completedAt DateTime?
   order       Int
   fieldValues TaskFieldValue[]

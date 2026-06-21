@@ -344,6 +344,7 @@ export async function cloneTheme(sourceThemeId: string, userId: string, nameEn: 
           titleFa: td.titleFa,
           order: td.order,
           defaultPriority: td.defaultPriority,
+          recurrence: td.recurrence,
           fieldDefs: {
             create: td.fieldDefs.map((fd) => ({
               labelEn: fd.labelEn,

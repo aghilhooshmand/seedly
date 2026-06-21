@@ -3,11 +3,13 @@
 import { useTranslations } from "next-intl";
 import { label, type Locale } from "@/lib/labels";
 import { formatDate } from "@/lib/utils";
-import { AlertTriangle, Clock } from "lucide-react";
+import { AlertTriangle, Clock, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { stageProgressPercent, taskProgressPercent } from "@/lib/progress-calc";
 import { TaskFieldInputs, type TaskField } from "@/components/task-field-inputs";
 import { StageFieldInputs, type StageField } from "@/components/stage-field-inputs";
+import type { Recurrence } from "@prisma/client";
+import { isRecurringComplete } from "@/lib/recurrence";
 
 type Task = {
   id: string;
@@ -15,6 +17,8 @@ type Task = {
   titleFa: string;
   deadline: Date | string | null;
   priority: string;
+  recurrence?: Recurrence;
+  periodCompletedKey?: string | null;
   fieldValues: TaskField[];
   subtasks?: Task[];
 };
@@ -152,8 +156,12 @@ function TaskRow({
   depth: number;
 }) {
   const progress = taskProgressPercent(task);
-  const overdue = isOverdue(task.deadline, progress);
-  const dueSoon = isDueSoon(task.deadline, progress);
+  const recurring = task.recurrence && task.recurrence !== "NONE";
+  const doneForPeriod =
+    recurring && isRecurringComplete(task.recurrence!, task.periodCompletedKey);
+  const displayProgress = doneForPeriod ? 100 : progress;
+  const overdue = isOverdue(task.deadline, displayProgress);
+  const dueSoon = isDueSoon(task.deadline, displayProgress);
   const hasSubtasks = (task.subtasks?.length ?? 0) > 0;
 
   return (
@@ -165,10 +173,10 @@ function TaskRow({
       )}
     >
       <div className="flex items-start gap-3">
-        {progress < 100 && (
-          <span className="mt-0.5 shrink-0 text-xs tabular-nums text-emerald-600">{progress}%</span>
+        {displayProgress < 100 && (
+          <span className="mt-0.5 shrink-0 text-xs tabular-nums text-emerald-600">{displayProgress}%</span>
         )}
-        {progress >= 100 && (
+        {displayProgress >= 100 && (
           <span className="mt-0.5 shrink-0 text-xs text-emerald-600" title={t("seed.completed")}>
             ✓
           </span>
@@ -177,6 +185,12 @@ function TaskRow({
           <p className="text-sm font-medium text-emerald-950">
             {label(locale, task.titleEn, task.titleFa)}
           </p>
+          {recurring && (
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
+              <Repeat className="h-3 w-3" />
+              {t(`recurrence.${task.recurrence}`)}
+            </span>
+          )}
           {(overdue || dueSoon) && task.deadline && (
             <p
               className={cn(

@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { refreshSeedProgress } from "@/lib/seeds";
 import { resolveCompletedAfterUpdate } from "@/lib/field-progress";
+import { markRecurringPeriodIfDone } from "@/lib/recurring-tasks";
 import type { FieldType, Priority } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
@@ -70,6 +71,7 @@ export async function updateTaskField(
     },
     include: { task: { include: { stage: true } } },
   });
+  await markRecurringPeriodIfDone(field.task.id);
   await refreshSeedProgress(field.task.stage.seedId);
   revalidatePath(`/seeds/${field.task.stage.seedId}`);
   return field;
