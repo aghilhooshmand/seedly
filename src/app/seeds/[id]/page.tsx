@@ -9,6 +9,7 @@ import { EditableSeedFields } from "@/components/seed-field-form";
 import { StageTaskTimeline, FollowUpSummary } from "@/components/stage-task-timeline";
 import { ActivityFeed } from "@/components/activity-feed";
 import { SeedActions } from "./seed-actions";
+import { DeleteSeedButton } from "@/components/delete-seed-button";
 import { label, type Locale } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
@@ -50,13 +51,16 @@ export default async function SeedDetailPage({ params }: Params) {
         </div>
         <h1 className="mt-3 text-2xl font-semibold text-emerald-950 sm:text-3xl">{seed.title}</h1>
         {!readOnly && (
-          <Link
-            href={`/seeds/${seed.id}/customize`}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 px-3 py-1.5 text-sm font-medium text-emerald-800 hover:bg-emerald-50"
-          >
-            <Settings2 className="h-4 w-4" />
-            {t("customize.title")}
-          </Link>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href={`/seeds/${seed.id}/customize`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 px-3 py-1.5 text-sm font-medium text-emerald-800 hover:bg-emerald-50"
+            >
+              <Settings2 className="h-4 w-4" />
+              {t("customize.title")}
+            </Link>
+            <DeleteSeedButton seedId={seed.id} />
+          </div>
         )}
         <div className="mt-6">
           <div className="mb-1 flex justify-between text-sm">

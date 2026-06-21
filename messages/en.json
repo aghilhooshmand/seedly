@@ -42,6 +42,8 @@
     "addActivity": "Log activity",
     "share": "Share (view only)",
     "back": "Back to universe",
+    "delete": "Delete seed",
+    "deleteConfirm": "Delete this seed and all its tasks? This cannot be undone.",
     "progress": "Progress",
     "overdue": "Overdue",
     "dueSoon": "Due soon",
